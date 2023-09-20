@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Priskalkulator</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+
+      .calculator {
+        max-width: 100%;
+        height: auto;
+        margin: 0 auto;
+        padding: 0.2em;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* 3 columns for buttons */
+        grid-gap: 0.2em; /* Gap between grid items */
+        justify-content: space-between; /* Align items to the start and end */
+        text-align: center;
+        font-size: 0.7em;
+      }
+
+      .button-container {
+        grid-column: span 2; /* Take up 2 columns in the grid */
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* 3 columns for buttons */
+        grid-auto-rows: minmax(min-content, max-content); /* Automatically adjust button height */
+        grid-gap: 0.1em; /* Gap between grid items */
+        margin-right: 0.5em;
+      }
+
+      .button {
+        
+        background-color: #00292910;
+        margin: 5px;
+        padding: 1em;
+        display: flex; /* Center text vertically and horizontally */
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.1s, transform 0.1s;
+        border-radius: 5px;
+      }
+
+      .button.selected
+       {
+        background-color: #002929;
+        color: white;
+      }
+      .button:hover {
+        transform: scale(1.02);
+      }
+
+      .duration-slider {
+        grid-column: span 1; /* Take up 1 column in the grid */
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* 3 columns for duration options */
+        grid-auto-rows: minmax(min-content, max-content); /* Automatically adjust option height */
+        grid-gap: 0.1em; /* Gap between grid items */
+        margin-left: 1em;
+      }
+
+      .duration-option {
+        background-color: #00292910;
+        margin: 5px;
+        padding: 1em;
+        display: flex; /* Center text vertically and horizontally */
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.1s, transform 0.1s;
+        border-radius: 5px;
+      }
+
+      .duration-option.selected
+      {
+        background-color: #5F1F0B;
+        color: white;
+        box-shadow: none;
+      }
+      
+      .duration-option:hover {
+        transform: scale(1.02);
+      }
+
+      .price-container {
+        display: block;
+        text-align: center; /* Center items horizontally */
+        margin-bottom: 1em;
+      }
+
+      .price {
+        margin-bottom: 5px;
+        font-size: 1.4rem;
+        position: bottom;
+        }
+      
+    </style>
+  </head>
+  <body>
+    <div class="calculator">
+      <div class="button-container">
+        <!-- Container for buttons -->
+        <div class="button" onclick="toggleButton(this)">Extra digernes</div>
+        <div class="button" onclick="toggleButton(this)">Extra Skodje</div>
+        <div class="button" onclick="toggleButton(this)">Extra Vatneeidet</div>
+        <div class="button" onclick="toggleButton(this)">Extra Brattvåg</div>
+        <div class="button" onclick="toggleButton(this)">Joker Lepsøy</div>
+        <div class="button" onclick="toggleButton(this)">Spar Søvik</div>
+        <div class="button" onclick="toggleButton(this)">Prix Søvik</div>
+        <div class="button" onclick="toggleButton(this)">Prix Haramsøy</div>
+        <div class="button" onclick="toggleButton(this)">Prix Longva</div>
+      </div>
+      <div class="duration-slider">
+        <div class="duration-option" data-days="30" onclick="setDuration(this)">
+          1 mnd.
+        </div>
+        <div
+          class="duration-option selected"
+          data-days="60"
+          onclick="setDuration(this)"
+        >
+          2 mnd.
+        </div>
+        <div class="duration-option" data-days="90" onclick="setDuration(this)">
+          3 mnd.
+        </div>
+        <div class="duration-option" data-days="120" onclick="setDuration(this)">
+          4 mnd.
+        </div>
+        <div class="duration-option" data-days="150" onclick="setDuration(this)">
+          5 mnd.
+        </div>
+        <div class="duration-option" data-days="180" onclick="setDuration(this)">
+          6 mnd.
+        </div>
+      </div>
+    </div>
+    <div class="price-container">
+      <div class="price">
+        <p>Pris: 0 kr</p>
+      </div>
+    </div>
+
+    <script>
+      let selectedDurationOption = document.querySelector(
+        ".duration-option.selected"
+      );
+      let selectedButtons = [];
+
+      // Preselect the first "duration option" on page load
+      window.addEventListener("DOMContentLoaded", () => {
+        toggleButton(document.querySelector(".button")); // Select the first button
+      });
+
+      function toggleButton(button) {
+        if (button.classList.contains("select-all")) {
+          // Toggle all buttons when "Select All" is clicked
+          const buttons = document.querySelectorAll(".button");
+          const isAnyButtonDeselected = Array.from(buttons).some(
+            (b) => !b.classList.contains("selected")
+          );
+          buttons.forEach((b) =>
+            isAnyButtonDeselected
+              ? b.classList.add("selected")
+              : b.classList.remove("selected")
+          );
+          selectedButtons = isAnyButtonDeselected ? [...buttons] : [];
+        } else {
+          button.classList.toggle("selected");
+          const buttonIndex = selectedButtons.indexOf(button);
+          if (buttonIndex === -1) {
+            selectedButtons.push(button);
+          } else {
+            selectedButtons.splice(buttonIndex, 1);
+          }
+        }
+        calculatePrice();
+      }
+
+      function toggleSelectAll(selectAllButton) {
+        toggleButton(selectAllButton);
+      }
+
+      function setDuration(option) {
+        if (selectedDurationOption) {
+          selectedDurationOption.classList.remove("selected");
+        }
+        option.classList.add("selected");
+        selectedDurationOption = option;
+        calculatePrice();
+      }
+
+      function calculatePrice() {
+        const selectedDuration = parseInt(selectedDurationOption.dataset.days);
+        const totalPrice =
+          selectedButtons.length * 250 * (selectedDuration / 65); // Assuming a price of 250 kr per button per month
+        document.querySelector(
+          ".price"
+        ).textContent = `Total: ${totalPrice.toFixed(0)} kr`;
+      }
+    </script>
+  </body>
+</html>
